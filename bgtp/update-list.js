@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const imageDir = './bglovett/images';
+const imageDir = '/bglovett/images';
 const images = fs.readdirSync(imageDir).filter(file => file.endsWith('.png'));
 
 const output = {
