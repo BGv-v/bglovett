@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>随机图片展示</title>
+    <title>自适应随机图片加载器</title>
     <style>
         * {
             margin: 0;
@@ -12,48 +12,44 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            color: #fff;
+            color: white;
+            text-align: center;
         }
         
         .container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
             width: 100%;
-            max-width: 900px;
-            text-align: center;
         }
         
         h1 {
             font-weight: 300;
-            margin-bottom: 30px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
             font-size: 2.2rem;
         }
         
-        .image-wrapper {
+        .image-container {
             position: relative;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            margin: 0 auto;
-            transition: transform 0.4s ease;
-            background: rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 700px;
+            margin: 25px auto;
             height: 400px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .image-wrapper:hover {
-            transform: translateY(-5px);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         #random-image {
@@ -77,14 +73,48 @@
             color: rgba(255, 255, 255, 0.8);
         }
         
-        .refresh-note {
-            margin-top: 25px;
+        .status {
+            margin-top: 15px;
             font-size: 1rem;
-            opacity: 0.8;
+            color: #ffcc00;
+            min-height: 24px;
+        }
+        
+        .info {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .info h3 {
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+        
+        .info ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        
+        .info li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .info li:before {
+            content: "•";
+            color: #4fc3f7;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
         }
         
         @media (max-width: 768px) {
-            .image-wrapper {
+            .image-container {
                 height: 300px;
             }
             
@@ -94,63 +124,92 @@
         }
         
         @media (max-width: 480px) {
-            .image-wrapper {
+            .image-container {
                 height: 250px;
             }
             
             h1 {
                 font-size: 1.5rem;
             }
+            
+            .container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>随机图片展示</h1>
+        <h1>自适应随机图片加载器</h1>
         
-        <div class="image-wrapper">
-            <div class="loading">正在加载图片...</div>
+        <div class="image-container">
+            <div class="loading">正在检测并加载图片...</div>
             <img id="random-image" alt="随机图片">
         </div>
         
-        <p class="refresh-note">刷新页面以查看不同的图片</p>
+        <div class="status" id="status">正在检测目录中的图片...</div>
+        
+        <div class="info">
+            <h3>使用说明</h3>
+            <ul>
+                <li>将您的图片文件放在与此HTML文件相同的目录中</li>
+                <li>支持常见图片格式：.png, .jpg, .jpeg, .gif, .webp</li>
+                <li>图片可以任意命名（如：photo1.jpg, image.png, 风景照.jpeg）</li>
+                <li>刷新页面将随机显示不同的图片</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        // 配置部分
-        const totalImages = 10; // 假设有10张图片，命名为1.png到10.png
-        const imageExtension = '.png'; // 图片扩展名
+        // 常见图片扩展名
+        const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
         
-        // 获取随机图片
-        function getRandomImage() {
-            const randomIndex = Math.floor(Math.random() * totalImages) + 1;
-            return randomIndex + imageExtension;
-        }
+        // 尝试加载的图片名称模式（可以根据需要扩展）
+        const commonImagePatterns = [
+            'image', 'photo', 'img', 'pic', 'picture',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g'
+        ];
         
-        // 加载图片
-        function loadRandomImage() {
+        // 状态元素
+        const statusElement = document.getElementById('status');
+        
+        // 尝试加载图片
+        function tryLoadImage() {
             const imgElement = document.getElementById('random-image');
             const loadingElement = document.querySelector('.loading');
-            const randomImageFile = getRandomImage();
+            
+            // 生成随机图片路径
+            const randomPattern = commonImagePatterns[Math.floor(Math.random() * commonImagePatterns.length)];
+            const randomExtension = imageExtensions[Math.floor(Math.random() * imageExtensions.length)];
+            const randomImageFile = randomPattern + randomExtension;
+            
+            statusElement.textContent = `尝试加载: ${randomImageFile}`;
             
             imgElement.onload = function() {
-                // 图片加载完成后显示
+                // 图片加载成功
                 imgElement.classList.add('loaded');
                 loadingElement.style.display = 'none';
+                statusElement.textContent = `成功加载: ${randomImageFile}`;
+                statusElement.style.color = '#4caf50';
             };
             
             imgElement.onerror = function() {
-                // 图片加载失败处理
-                loadingElement.textContent = '图片加载失败';
-                loadingElement.style.color = '#ff6b6b';
+                // 图片加载失败，稍后重试
+                statusElement.textContent = `${randomImageFile} 加载失败，正在尝试其他图片...`;
+                statusElement.style.color = '#f44336';
+                
+                setTimeout(tryLoadImage, 1000);
             };
             
             // 设置图片源
             imgElement.src = randomImageFile;
         }
         
-        // 页面加载时执行
-        window.onload = loadRandomImage;
+        // 页面加载时开始尝试加载图片
+        window.onload = function() {
+            setTimeout(tryLoadImage, 1500);
+        };
     </script>
 </body>
 </html>
