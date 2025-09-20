@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>随机图片</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <img id="randomImage" alt="随机图片">
+    
+    <script>
+        // 图片列表 - 需要手动维护这个列表
+        const images = [
+            'images/image1.png',
+            'images/image2.png',
+            'images/image3.png',
+            // 添加更多图片路径...
+        ];
 
+        // 如果没有图片，显示错误信息
+        if (images.length === 0) {
+            document.body.innerHTML = '<p>没有找到图片</p>';
+        } else {
+            // 随机选择一张图片
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const randomImage = images[randomIndex];
+            
+            // 设置图片源
+            document.getElementById('randomImage').src = randomImage;
+            
+            // 图片加载失败处理
+            document.getElementById('randomImage').onerror = function() {
+                this.style.display = 'none';
+                document.body.innerHTML += '<p>图片加载失败</p>';
+            };
+        }
+    </script>
+</body>
+</html>
