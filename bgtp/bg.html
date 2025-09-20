@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自适应随机图片加载器</title>
+    <title>GitHub Pages 随机图片</title>
     <style>
         * {
             margin: 0;
@@ -94,23 +94,47 @@
             color: #4fc3f7;
         }
         
-        .info ul {
-            list-style-type: none;
-            padding-left: 20px;
+        .config-section {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: left;
         }
         
-        .info li {
-            margin-bottom: 8px;
-            position: relative;
-        }
-        
-        .info li:before {
-            content: "•";
+        .config-section h3 {
+            margin-bottom: 10px;
             color: #4fc3f7;
-            font-weight: bold;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
+        }
+        
+        .config-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .config-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .config-form button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #4fc3f7;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .config-form button:hover {
+            background: #29b6f6;
         }
         
         @media (max-width: 768px) {
@@ -135,80 +159,126 @@
             .container {
                 padding: 20px;
             }
+            
+            .config-form input {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>自适应随机图片加载器</h1>
+        <h1>GitHub Pages 随机图片加载器</h1>
         
         <div class="image-container">
-            <div class="loading">正在检测并加载图片...</div>
+            <div class="loading" id="loading-text">正在加载图片...</div>
             <img id="random-image" alt="随机图片">
         </div>
         
-        <div class="status" id="status">正在检测目录中的图片...</div>
+        <div class="status" id="status">准备加载图片...</div>
+        
+        <div class="config-section">
+            <h3>配置图片列表</h3>
+            <p>请输入您项目中图片的文件名（每行一个）：</p>
+            <div class="config-form">
+                <textarea id="image-names" rows="5" placeholder="例如：
+image1.png
+photo.jpg
+background.png"></textarea>
+                <button onclick="saveImageList()">保存图片列表</button>
+            </div>
+        </div>
         
         <div class="info">
             <h3>使用说明</h3>
             <ul>
                 <li>将您的图片文件放在与此HTML文件相同的目录中</li>
-                <li>支持常见图片格式：.png, .jpg, .jpeg, .gif, .webp</li>
-                <li>图片可以任意命名（如：photo1.jpg, image.png, 风景照.jpeg）</li>
+                <li>在上方文本框中输入所有图片的文件名（每行一个）</li>
+                <li>点击"保存图片列表"按钮保存配置</li>
                 <li>刷新页面将随机显示不同的图片</li>
+                <li>配置信息会保存在浏览器本地，下次访问仍然有效</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // 常见图片扩展名
-        const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
-        
-        // 尝试加载的图片名称模式（可以根据需要扩展）
-        const commonImagePatterns = [
-            'image', 'photo', 'img', 'pic', 'picture',
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g'
-        ];
-        
-        // 状态元素
+        // 获取DOM元素
+        const imgElement = document.getElementById('random-image');
+        const loadingElement = document.getElementById('loading-text');
         const statusElement = document.getElementById('status');
+        const imageNamesTextarea = document.getElementById('image-names');
         
-        // 尝试加载图片
-        function tryLoadImage() {
-            const imgElement = document.getElementById('random-image');
-            const loadingElement = document.querySelector('.loading');
+        // 从本地存储加载图片列表
+        function loadImageList() {
+            const savedList = localStorage.getItem('imageList');
+            if (savedList) {
+                imageNamesTextarea.value = savedList;
+                return savedList.split('\n').filter(name => name.trim() !== '');
+            }
+            return [];
+        }
+        
+        // 保存图片列表到本地存储
+        function saveImageList() {
+            const imageList = imageNamesTextarea.value;
+            localStorage.setItem('imageList', imageList);
+            statusElement.textContent = '图片列表已保存！';
+            statusElement.style.color = '#4caf50';
             
-            // 生成随机图片路径
-            const randomPattern = commonImagePatterns[Math.floor(Math.random() * commonImagePatterns.length)];
-            const randomExtension = imageExtensions[Math.floor(Math.random() * imageExtensions.length)];
-            const randomImageFile = randomPattern + randomExtension;
+            // 重新加载图片
+            setTimeout(loadRandomImage, 1000);
+        }
+        
+        // 加载随机图片
+        function loadRandomImage() {
+            const imageList = loadImageList();
             
-            statusElement.textContent = `尝试加载: ${randomImageFile}`;
+            if (imageList.length === 0) {
+                statusElement.textContent = '请先配置图片列表';
+                statusElement.style.color = '#f44336';
+                loadingElement.textContent = '等待配置图片列表';
+                return;
+            }
+            
+            // 随机选择一张图片
+            const randomIndex = Math.floor(Math.random() * imageList.length);
+            const randomImage = imageList[randomIndex].trim();
+            
+            statusElement.textContent = `正在加载: ${randomImage}`;
+            statusElement.style.color = '#ffcc00';
+            loadingElement.textContent = '正在加载图片...';
+            loadingElement.style.display = 'block';
+            imgElement.classList.remove('loaded');
             
             imgElement.onload = function() {
                 // 图片加载成功
                 imgElement.classList.add('loaded');
                 loadingElement.style.display = 'none';
-                statusElement.textContent = `成功加载: ${randomImageFile}`;
+                statusElement.textContent = `成功加载: ${randomImage}`;
                 statusElement.style.color = '#4caf50';
             };
             
             imgElement.onerror = function() {
-                // 图片加载失败，稍后重试
-                statusElement.textContent = `${randomImageFile} 加载失败，正在尝试其他图片...`;
+                // 图片加载失败
+                loadingElement.textContent = '图片加载失败';
+                statusElement.textContent = `无法加载: ${randomImage}`;
                 statusElement.style.color = '#f44336';
                 
-                setTimeout(tryLoadImage, 1000);
+                // 3秒后重试
+                setTimeout(loadRandomImage, 3000);
             };
             
-            // 设置图片源
-            imgElement.src = randomImageFile;
+            // 设置图片源（添加时间戳防止缓存）
+            imgElement.src = randomImage + '?t=' + new Date().getTime();
         }
         
-        // 页面加载时开始尝试加载图片
+        // 页面加载时初始化
         window.onload = function() {
-            setTimeout(tryLoadImage, 1500);
+            // 加载保存的图片列表
+            loadImageList();
+            
+            // 开始加载随机图片
+            setTimeout(loadRandomImage, 1000);
         };
     </script>
 </body>
