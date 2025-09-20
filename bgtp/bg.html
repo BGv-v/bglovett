@@ -1,115 +1,56 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>随机PNG图片展示</title>
+    <title>随机图片</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            min-height: 100vh;
+            background: black;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-            color: white;
-        }
-        
-        .container {
-            text-align: center;
-            max-width: 800px;
-            width: 100%;
-        }
-        
-        h1 {
-            font-weight: 300;
-            margin-bottom: 30px;
-            font-size: 2.2rem;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        .image-container {
-            border-radius: 10px;
+            align-items: center;
+            height: 100vh;
             overflow: hidden;
-            margin: 0 auto;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            max-width: 100%;
-            height: 70vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.2);
         }
-        
-        #random-image {
+        img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-        
-        .refresh-note {
-            margin-top: 20px;
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .image-container {
-                height: 60vh;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .image-container {
-                height: 50vh;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>随机PNG图片展示</h1>
-        
-        <div class="image-container">
-            <img id="random-image" alt="随机PNG图片">
-        </div>
-        
-        <p class="refresh-note">刷新页面显示不同图片</p>
-    </div>
+    <img id="random-image" alt="随机图片">
 
     <script>
-        // 获取图片元素
-        const imgElement = document.getElementById('random-image');
-        
-        // 生成随机图片名称（假设图片名为1.png, 2.png, 3.png...）
+        // 已知存在的图片列表（需要您根据实际情况修改）
+        const existingImages = [
+            "0.png", "1.png"
+            // 请在这里添加您实际存在的所有图片文件名
+        ];
+
+        // 获取随机图片
         function getRandomImage() {
-            // 随机生成1-20之间的数字（您可以根据实际图片数量调整）
-            const randomNumber = Math.floor(Math.random() * 20) + 1;
-            return `${randomNumber}.png`;
+            if (existingImages.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * existingImages.length);
+            return existingImages[randomIndex];
         }
-        
-        // 页面加载时设置随机图片
-        window.onload = function() {
+
+        // 加载图片
+        function loadRandomImage() {
+            const imgElement = document.getElementById('random-image');
             const randomImage = getRandomImage();
-            imgElement.src = randomImage;
-            imgElement.alt = `随机图片: ${randomImage}`;
-        };
+            
+            if (randomImage) {
+                imgElement.src = randomImage;
+                imgElement.alt = randomImage;
+            }
+        }
+
+        // 页面加载时显示随机图片
+        window.onload = loadRandomImage;
     </script>
 </body>
 </html>
