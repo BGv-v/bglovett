@@ -1,7 +1,7 @@
 {
     "versionCode":15,
     "versionName": "饼干15",
-    "changelog": "1.由于github无法上传大文件暂时将安装包寄存到其他网盘了。\n2.新增收藏琴谱功能。/n3.优化部分代码占用内存问题。",
+    "changelog": "1.由于github无法上传大文件暂时将安装包寄存到其他网盘了。\n2.新增收藏琴谱功能。\n3.优化部分代码占用内存问题。",
     "downloadUrl": "http://wpan.cdndns.site/down/c828ed0f48c19fbb05cceac937a952cd",
     "password": "202cb962ac59075b964b07152d234b70"
 }
