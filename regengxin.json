@@ -1,7 +1,7 @@
 {
-    "versionCode":15,
-    "versionName": "饼干15",
-    "changelog": "1.由于github无法上传大文件暂时将安装包寄存到其他网盘了。\n2.新增收藏琴谱功能。\n3.优化部分代码占用内存问题。",
-    "downloadUrl": "http://wpan.cdndns.site/down/c828ed0f48c19fbb05cceac937a952cd",
+    "versionCode":16,
+    "versionName": "饼干16",
+    "changelog": "1.更改坐标读取文件路径位置。\n2.优化收藏内置琴谱失效问题。\n3.优化播放上一首与下一首逻辑性错误问题，可识别播放当前目录。\n4,悬浮窗播放界面图标颜色不清晰问题。",
+    "downloadUrl": "http://wpan.cdndns.site/down/c2b2b4bac6c66e165afee4007d574959",
     "password": "202cb962ac59075b964b07152d234b70"
 }
