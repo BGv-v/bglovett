@@ -1,4 +1,4 @@
-1<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,15 @@
             font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
         }
         
-        
+        body {
+            background: url('http://pyh.baby/bgtp/BG.php') no-repeat center center fixed;
+            background-size: cover;
+            color: #FFB9B9;
+            line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
         
         /* 人物图片容器 */
         .characters-container {
@@ -1023,6 +1031,7 @@
         let currentPlayingVideo = null;
         let musicTimeBeforeVideo = 0;
         let hasShownMusicTooltip = false;
+        let userManuallyPausedMusic = false; // 新增：记录用户是否手动暂停了音乐
         
         // 暂停所有视频
         function pauseAllVideos() {
@@ -1041,7 +1050,9 @@
             // 恢复音乐播放
             if (musicTimeBeforeVideo > 0) {
                 bgMusic.currentTime = musicTimeBeforeVideo;
-                playMusic();
+                if (!userManuallyPausedMusic) {
+                    playMusic();
+                }
                 musicTimeBeforeVideo = 0;
             }
         }
@@ -1135,7 +1146,9 @@
                             // 恢复音乐播放
                             if (musicTimeBeforeVideo > 0) {
                                 bgMusic.currentTime = musicTimeBeforeVideo;
-                                playMusic();
+                                if (!userManuallyPausedMusic) {
+                                    playMusic();
+                                }
                                 musicTimeBeforeVideo = 0;
                             }
                             
@@ -1159,7 +1172,9 @@
                             // 恢复音乐播放
                             if (musicTimeBeforeVideo > 0) {
                                 bgMusic.currentTime = musicTimeBeforeVideo;
-                                playMusic();
+                                if (!userManuallyPausedMusic) {
+                                    playMusic();
+                                }
                                 musicTimeBeforeVideo = 0;
                             }
                         }
@@ -1361,6 +1376,7 @@
             bgMusic.play();
             musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
             isMusicPlaying = true;
+            userManuallyPausedMusic = false; // 重置手动暂停标记
         }
         
         // 暂停音乐
@@ -1388,12 +1404,13 @@
             e.stopPropagation();
             if (isMusicPlaying) {
                 pauseMusic();
+                userManuallyPausedMusic = true; // 用户手动暂停了音乐
             } else {
                 playMusic();
             }
         });
         
-        // 点击空白区域播放音乐
+        // 点击空白区域播放音乐 - 修改后的逻辑
         document.addEventListener('click', (e) => {
             // 排除设置按钮、设置面板、音乐按钮、图片和视频的点击
             if (e.target.closest('#settingsBtn') || 
@@ -1404,8 +1421,8 @@
                 return;
             }
             
-            // 如果音乐没有播放，则播放音乐
-            if (!isMusicPlaying) {
+            // 如果音乐没有播放且用户没有手动暂停，则播放音乐
+            if (!isMusicPlaying && !userManuallyPausedMusic) {
                 playMusic();
             }
             
