@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加载中...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: pink;
+            flex-direction: column;
+        }
+        
+        .loading-text {
+            margin-bottom: 20px;
+            font-size: 24px;
+            height: 30px;
+            overflow: hidden;
+        }
+        
+        .loading-text span {
+            display: inline-block;
+            position: relative;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        .progress-bar {
+            width: 300px;  /* 设置进度条宽度为250px */
+            height: 20px;
+            border: 2px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            display: flex;
+            width: 100%;
+        }
+        
+        .progress-block {
+            flex: 1;  /* 使用flex自动分配宽度 */
+            height: 100%;
+            background-color: pink;
+            margin-right: 2px;
+            opacity: 0;
+        }
+        
+        .progress-percent {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-text" id="loadingText"></div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <script>
+        // 创建加载文字
+        const text = "加载中......";
+        const loadingText = document.getElementById('loadingText');
+        
+        for (let i = 0; i < text.length; i++) {
+            const span = document.createElement('span');
+            span.textContent = text[i];
+            loadingText.appendChild(span);
+            
+            // 文字跳跃动画
+            setTimeout(() => {
+                span.style.transition = 'all 0.3s ease';
+                span.style.opacity = '1';
+                span.style.transform = 'translateY(0)';
+                
+                // 添加跳跃效果
+                setInterval(() => {
+                    span.style.transform = 'translateY(-5px)';
+                    setTimeout(() => {
+                        span.style.transform = 'translateY(0)';
+                    }, 300);
+                }, 1000 + i * 200);
+            }, i * 100);
+        }
+        
+        // 创建进度条方块
+        const progressFill = document.getElementById('progressFill');
+        const blockCount = 25; // 方块数量
+        const blocks = [];
+        
+        for (let i = 0; i < blockCount; i++) {
+            const block = document.createElement('div');
+            block.className = 'progress-block';
+            // 最后一个方块不需要右边距
+            if (i === blockCount - 1) {
+                block.style.marginRight = '0';
+            }
+            progressFill.appendChild(block);
+            blocks.push(block);
+        }
+        
+        // 更新进度条
+        const progressPercent = document.getElementById('progressPercent');
+        const duration = 3000; // 3秒
+        const startTime = Date.now();
+        
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const visibleBlocks = Math.floor(progress * blockCount);
+            
+            // 更新方块显示
+            blocks.forEach((block, index) => {
+                block.style.opacity = index < visibleBlocks ? '1' : '0';
+            });
+            
+            // 更新百分比
+            const percent = Math.floor(progress * 100);
+            progressPercent.textContent = `${percent}%`;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                // 检测设备并跳转
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                window.location.href = isMobile ? 'shuping.html' : 'hengping.html';
+            }
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>
